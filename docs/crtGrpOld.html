@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CrtGrp</title>
+</head>
+
+<body>
+    <label for="grpNameInput">Group Name</label>
+    <input type="text" id="grpNameInput">
+    <label for="addUserIdInput">Add User</label>
+    <input type="text" id="addUserIdInput">
+    <!-- <button type="button" id="addUserIdBtn">Add</button> -->
+    <button type="button" id="submitBtn">Submit</button>
+
+    <script type="module">
+        const grpNameInput = document.getElementById("grpNameInput");
+        const addUserIdInput = document.getElementById("addUserIdInput");
+        // const addUserIdBtn = document.getElementById('addUserIdBtn');
+        const submitBtn = document.getElementById('submitBtn');
+
+        const currentUserId = await((await fetch('/currentUserId', { method: 'GET' })).json()).currentUserId;
+
+        submitBtn.addEventListener('click', async () => {
+            await fetch('/crtGrp', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    currentUserId: currentUserId,
+                    addUserId: addUserIdInput.value,
+                    groupName: grpNameInput.value
+                })
+            });
+            window.location.href = '/index';
+        });
+    </script>
+</body>
+
+</html>

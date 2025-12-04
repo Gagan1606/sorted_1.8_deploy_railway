@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up</title>
+    <link rel="stylesheet" href="/css1/signUp.css">
+</head>
+
+<body>
+    <form>
+        <label for="userIdInput">User Id</label>
+        <input type="text" id="userIdInput">
+        <label for="userProfileInput">Upload Profile Photo</label>
+        <input type="file" id="userProfileInput">
+        <label for="passwordInput">Password</label>
+        <input type="text" id="passwordInput">
+        <button type="button" id="signUpBtn">Sign Up</button>
+    </form>
+    <script>
+        const API_BASE = 'https://YOUR-EB-URL-HERE';
+
+        const signUpBtn = document.getElementById('signUpBtn');
+        signUpBtn.addEventListener('click', async () => {
+            let userIdInput = document.getElementById('userIdInput').value;
+            let passwordInput = document.getElementById('passwordInput').value;
+            let userProfileInput = document.getElementById('userProfileInput').files[0];
+            console.log(userProfileInput.type);
+            let tempForm = new FormData();
+            tempForm.append('userProfileImage', userProfileInput);
+            tempForm.append('userId', userIdInput);
+            tempForm.append('password', passwordInput);
+            // const faceId = await (await fetch('/getNewFaceId', {
+            //     method: 'POST',
+            //     body: tempForm
+            // })).json();
+            let faceEmbeddings = await fetch(`${API_BASE}/face-embed`, {
+                method: 'POST',
+                body: tempForm
+            })
+            tempForm.append('faceEmbeddings', faceEmbeddings);
+            await fetch(`${API_BASE}/signUp`, {
+                method: 'POST',
+                body: tempForm
+            });
+            window.location.href = '/Gagan1606/sorted_1.8/frontend/login.html';
+        })
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="./css1/login.css">
+</head>
+
+<body>
+    <form id="loginForm">
+        <label for="userIdInput">User Id</label>
+        <input type="text" id="userIdInput">
+        <label for="passwordInput">Password</label>
+        <input type="text" id="passwordInput">
+        <button id="submitBtn" type="button">Submit</button>
+        <p>New User?</p>
+        <button type="button" id="signUpBtn">Sign Up</button>
+    </form>
+
+    <script>
+        const API_BASE = 'https://YOUR-EB-URL-HERE';
+        let currentUser = 0;
+        const submitBtn = document.getElementById('submitBtn');
+
+        submitBtn.addEventListener('click', async () => {
+            let tempUserId = document.getElementById('userIdInput').value;
+            let tempPassword = document.getElementById('passwordInput').value;
+            const res = await fetch('`${API_BASE}login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'applicationAPI_BASE_URLjson' },
+                body: JSON.stringify({ userId: `${tempUserId}`, password: `${tempPassword}` })
+            });
+            const data = await res.json();
+            if (data.success) {
+                currentUser = tempUserId;
+                window.location.href = '/Gagan1606/sorted_1.8/docs/home.html';
+            };
+        });
+
+        const signUpBtn = document.getElementById('signUpBtn');
+        signUpBtn.addEventListener('click', () => {
+            window.location.href = '/Gagan1606/sorted_1.8/docs/signUp.html';
+        });
+    </script>
+</body>
+
+</html>

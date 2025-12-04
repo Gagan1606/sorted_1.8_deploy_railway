@@ -1,0 +1,24 @@
+{
+  "name": "1.4",
+  "type": "commonjs",
+  "version": "1.0.0",
+  "main": "backend.js",
+  "start": "node backend.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@aws-sdk/client-rekognition": "^3.925.0",
+    "axios": "^1.13.2",
+    "cors": "^2.8.5",
+    "eb": "^0.0.1",
+    "express": "^5.1.0",
+    "express-session": "^1.18.2",
+    "mongoose": "^8.19.2",
+    "multer": "^2.0.2",
+    "path": "^0.12.7"
+  },
+  "description": ""
+}

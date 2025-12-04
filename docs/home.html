@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MVP</title>
+    <link rel="stylesheet" href="./css1/index.css">
+</head>
+
+<body>
+    <!-- x users - upload photos - agg -->
+    <button type="button" id="viewBtn">View</button>
+    <div id="viewOptDiv"></div>
+    <div id="uploadDiv">
+        <input type="file" id="photoInput" multiple>
+        <input type="text" placeholder="Group Name" id="grpIdInput">
+        <button id="uploadBtn">Upload</button>
+    </div>
+    <p>New Group? Add your photos here</p>
+    <input type="text" id="groupNameNew">
+    <input type="file" id="photoInputNew" multiple>
+    <button id="crtGrpBtn">Create Group</button>
+    <!-- <button id="crtGrpBtn">Create Group</button> -->
+    <button id="exitBtn">Exit</button>
+    <button id="homeBtn">Home</button>
+
+
+    <script type="module">
+        const API_BASE = 'https://YOUR-EB-URL-HERE';
+
+        let currentUser = 0;
+        try {
+            const res = await fetch(`${API_BASE}/currentUserId`);
+            if (res.ok) {
+                const data = await res.json();
+                currentUser = data.currentUserId;
+            } else {
+                window.location.href = '/Gagan1606/sorted_1.8/docs/index.html';
+            }
+        } catch (err) {
+            console.error("Error fetching current user:", err);
+            window.location.href = '/Gagan1606/sorted_1.8/docs/index.html';
+        };
+        const uploadBtn = document.getElementById("uploadBtn");
+        const photoInput = document.getElementById("photoInput");
+        const photoInputNew = document.getElementById("photoInputNew");
+        const viewBtn = document.getElementById('viewBtn');
+        const addUserId = document.getElementById('addUserId');
+        const grpIdInput = document.getElementById('grpIdInput');
+        const exitBtn = document.getElementById('exitBtn');
+        const homeBtn = document.getElementById('homeBtn');
+
+
+        function uploadToBackend(tempForm) {
+            fetch(`${API_BASE}/uploadToBackend`, {
+                method: "POST",
+                body: tempForm
+            }).then(res => res.text())
+                .then(console.log)
+                .catch(err => console.error("Fetch error:", err));
+        };
+
+        uploadBtn.addEventListener("click", () => {
+            if (photoInput.files.length === 0) {
+                alert("Select a photo");
+                return;
+            };
+            const formData = new FormData();
+            formData.append("userId", currentUser);
+            formData.append('grpId', grpIdInput.value);
+            for (let file of photoInput.files) { formData.append("image", file); }
+            uploadToBackend(formData);
+        });
+
+        function base64ToBlob(base64, type) {
+            const byteChars = atob(base64);
+            const byteNumbers = Array.from(byteChars).map(c => c.charCodeAt(0));
+            const byteArray = new Uint8Array(byteNumbers);
+            return new Blob([byteArray], { type });
+        }
+
+        //click - multiple times - multiple btns
+        viewBtn.addEventListener('click', async () => {
+            document.getElementById('uploadDiv').style.display = 'none';
+            document.getElementById('crtGrpBtn').style.display = 'none';
+
+            const grpList = await ((await fetch(`${API_BASE}/grpList`, { method: 'GET' })).json());
+            // console.log(`${grpList}`);//
+            for (let grp of grpList) {
+                let j = document.createElement('button')
+                // j.style.width = '44px';
+                // j.style.height = '21px';
+
+                j.innerText = grp.groupName
+                j.id = `${grp.groupName}` + 'Id';
+                document.getElementById('viewOptDiv').appendChild(j);
+
+                j.addEventListener('click', async () => {
+                    const res = await fetch(`${API_BASE}/view/${currentUser}/${grp.groupName}`, { method: "GET" });
+                    const images = await res.json()
+                    let yourImages = [];
+                    // const yourImages = images.map(image => image.usersPresent.includes(currentUser))
+                    for (const image of images) {
+                        if ((Array.isArray(image.usersPresent)) && (image.usersPresent.includes(currentUser))) {
+                            yourImages.push(image);
+                        }
+                    }
+                    const imagesSorted = images.sort((a, b) => (new Date(b.uploadedAt)) - (new Date(a.uploadedAt)));
+
+                    const finalSort = {};
+                    for (const image of imagesSorted) {
+                        let date = new Date(image.uploadedAt).toLocaleDateString('en-GB');
+                        if (!finalSort[date]) finalSort[date] = [];
+                        finalSort[date].push(image);
+                    }
+
+                    for (let date in finalSort) {
+                        const dateHeader = document.createElement('h3');
+                        dateHeader.textContent = date
+                        document.body.appendChild(dateHeader);
+                        const row = document.createElement('div');
+                        // row.style.display = 'flex';
+                        row.className = 'image-row';
+
+
+                        for (const { contentType, photoData, uploadedAt } of finalSort[date]) {
+                            const blob = base64ToBlob(photoData, contentType);
+                            const url = URL.createObjectURL(blob);
+                            const img = document.createElement('img');
+                            // const date = document.createElement('p');
+                            // const div = document.createElement('div');
+                            // date.textContent = (new Date(uploadedAt)).toLocaleDateString('en-GB');
+                            img.src = url;
+                            // img.style.width = "200px";
+                            row.appendChild(img);
+                        }
+                        document.body.appendChild(row);
+                    }
+                    const yourImagesRow = document.createElement('div');
+                    // yourImagesRow.style.display = 'flex';
+                    yourImagesRow.className = 'your-images-section';
+                    let yourImagesEle = document.createElement('h3');
+                    yourImagesEle.textContent = 'Your Images'
+                    yourImagesRow.appendChild(yourImagesEle);
+                    const yourGrid = document.createElement('div');
+                    yourGrid.className = 'image-row';
+                    yourImagesRow.appendChild(yourGrid);
+                    for (const { contentType, photoData, uploadedAt } of yourImages) {
+                        const blob = base64ToBlob(photoData, contentType);
+                        const url = URL.createObjectURL(blob);
+                        const img = document.createElement('img');
+                        img.src = url;
+                        // img.style.width = "200px";
+                        yourGrid.appendChild(img);
+                    }
+                    document.body.appendChild(yourImagesRow);
+                });
+            }
+        });
+
+        //     const res = await fetch(`/view/${currentUser}`, { method: "GET" });
+        //     for (let image in images) {
+        //         const blob = await res[image].blob();
+        //         let imgUrl = URL.createObjectURL(blob);
+        //         let imageElement = document.createElement('img');
+        //         imageElement.setAttribute('src', imgUrl);
+        //         document.body.appendChild(imageElement);
+        //     }
+        // for (let image of images) {
+        //     const blob = await image.blob();
+        //     let imgUrl = URL.createObjectURL(blob);
+        //     let imageElement = document.createElement('img');
+        //     imageElement.setAttribute('src', imgUrl);
+        //     document.body.appendChild(imageElement);
+        // }
+
+        crtGrpBtn.addEventListener('click', async () => {
+            let tempForm = new FormData;
+            let groupNameNew = document.getElementById('groupNameNew').value;
+            tempForm.append('groupName', groupNameNew);
+            for (let i of photoInputNew.files) {
+                tempForm.append('image', i);
+            };
+            // let faceList = await (await fetch('/usersPresent', { method: 'POST', body: tempForm })).json();
+            // tempForm.append('faceList', faceList);
+            await fetch(`${API_BASE}/crtGrp`, { method: 'POST', body: tempForm });
+            // window.location.href = `/view/${currentUser}/${groupNameNew}`;
+            // window.location.href = '/';
+        });
+
+        exitBtn.addEventListener('click', async () => {
+            await fetch(`${API_BASE}/exit`, { method: 'GET' })
+            window.location.href = '/Gagan1606/sorted_1.8/docs/index.html';
+        })
+
+        homeBtn.addEventListener('click', async () => {
+            await fetch(`${API_BASE}/index`, { method: 'GET' })
+            window.location.href = '/Gagan1606/sorted_1.8/docs/home.html'
+        })
+    </script>
+</body>
+
+</html>
