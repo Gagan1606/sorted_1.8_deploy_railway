@@ -34,7 +34,7 @@ app.use(session({
 app.use('/css1', express.static(path.join(__dirname, '../frontend/css1')));
 const cors = require('cors');
 
-const FRONTEND_ORIGIN = 'https://Gagan1606.github.io/sorted_1.8_deploy'; // adjust to your GH pages base
+const FRONTEND_ORIGIN = 'https://Gagan1606.github.io'; // adjust to your GH pages base
 
 app.use(cors({
     origin: FRONTEND_ORIGIN,
