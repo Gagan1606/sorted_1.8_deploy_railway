@@ -28,7 +28,7 @@
         submitBtn.addEventListener('click', async () => {
             let tempUserId = document.getElementById('userIdInput').value;
             let tempPassword = document.getElementById('passwordInput').value;
-            const res = await fetch(`${API_BASE}login`, {
+            const res = await fetch(`${API_BASE}/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ userId: `${tempUserId}`, password: `${tempPassword}` })
